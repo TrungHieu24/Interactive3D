@@ -5,9 +5,6 @@ export type ViewMode = "story" | "xray";
 export type CameraPreset = "frontLeft" | "frontRight" | "rearLeft" | "rearRight";
 
 interface SceneState {
-  helmetRef: THREE.Group | null;
-  setHelmet: (ref: THREE.Group) => void;
-
   mode: ViewMode;
   setMode: (mode: ViewMode) => void;
 
@@ -19,9 +16,6 @@ interface SceneState {
 }
 
 export const useSceneStore = create<SceneState>((set) => ({
-  helmetRef: null,
-  setHelmet: (ref) => set({ helmetRef: ref }),
-
   mode: "story",
   setMode: (mode) => set({ mode, activePart: null }),
 

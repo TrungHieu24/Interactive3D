@@ -1,29 +1,36 @@
-import {useEffect} from "react";
+import { useEffect, useRef } from "react";
 import Lenis from "lenis";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-export default function SmoothScroll(){
+gsap.registerPlugin(ScrollTrigger);
 
-useEffect(()=>{
+export default function SmoothScroll() {
+  const lenisRef = useRef<Lenis | null>(null);
 
-const lenis=new Lenis({
-duration:1.2,
-smoothWheel:true,
-});
+  useEffect(() => {
+    const lenis = new Lenis({ duration: 1.2, smoothWheel: true });
+    lenisRef.current = lenis;
 
-function raf(time:number){
-lenis.raf(time);
-requestAnimationFrame(raf);
-}
+    lenis.on("scroll", ScrollTrigger.update);
 
-requestAnimationFrame(raf);
+    const update = (time: number) => lenis.raf(time * 1000);
+    gsap.ticker.add(update);
+    gsap.ticker.lagSmoothing(0);
 
-return()=>{
-lenis.destroy();
-}
+    // Đợi DOM ổn định hoàn toàn (kể cả sau vòng double-mount của StrictMode)
+    // rồi mới ép ScrollTrigger tính lại chiều cao/scroll — sửa dứt điểm lỗi kẹt progress
+    const refreshTimeout = setTimeout(() => {
+      ScrollTrigger.refresh();
+    }, 100);
 
-},[]);
+    return () => {
+      clearTimeout(refreshTimeout);
+      gsap.ticker.remove(update);
+      lenis.destroy();
+      lenisRef.current = null;
+    };
+  }, []);
 
-
-return null;
-
+  return null;
 }
