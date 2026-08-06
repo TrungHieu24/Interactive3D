@@ -5,8 +5,7 @@ import * as THREE from "three";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useSceneStore } from "../../store/sceneStore";
-import { findPartByMeshName } from "../../constants/partsData";
-import type { ThreeEvent } from "@react-three/fiber";
+import { STORY_STAGES } from "../../constants/storyData";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -19,30 +18,24 @@ export default function Helmet() {
   const helmetModel = useRef<THREE.Group>(null);
 
   const mode = useSceneStore((s) => s.mode);
-  const activePart = useSceneStore((s) => s.activePart);
-  const setActivePart = useSceneStore((s) => s.setActivePart);
 
-  // Debug: in ra tên tất cả mesh — mở console để lấy tên thật, sau đó xóa dòng này
-  useEffect(() => {
-    scene.traverse((child) => {
-      if (child instanceof THREE.Mesh) {
-        console.log("Mesh name:", child.name);
-      }
-    });
-  }, [scene]);
-
+  // Entrance khi mount — tách riêng khỏi mọi animation scroll
   useEffect(() => {
     if (!entranceGroup.current) return;
     const ctx = gsap.context(() => {
       gsap.from(entranceGroup.current!.scale, { x: 0, y: 0, z: 0, duration: 1.5, ease: "power3.out" });
-      gsap.from(entranceGroup.current!.rotation, { y: -Math.PI, duration: 1.8, ease: "power3.out" });
     });
     return () => ctx.revert();
   }, []);
 
+  // Timeline keyframe — đi qua từng "trạm" trong STORY_STAGES, KHÔNG bao giờ về scale 0
   useEffect(() => {
     if (!helmetRoot.current) return;
+
     const ctx = gsap.context(() => {
+      const n = STORY_STAGES.length;
+      const segDuration = 1 / (n - 1);
+
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: ".scroll-container",
@@ -52,39 +45,46 @@ export default function Helmet() {
         },
       });
 
-      tl.to(helmetRoot.current!.rotation, { y: "+=0.6", duration: 0.45, ease: "none" }, 0)
-        .to(helmetRoot.current!.position, { x: 1.1, duration: 0.15, ease: "power1.inOut" }, 0.45)
-        .to(helmetRoot.current!.scale, { x: 0.55, y: 0.55, z: 0.55, duration: 0.15, ease: "power1.inOut" }, 0.45)
-        .to(helmetRoot.current!.rotation, { y: "+=0.8", duration: 0.15, ease: "power1.inOut" }, 0.45)
-        .to(helmetRoot.current!.scale, { x: 0, y: 0, z: 0, duration: 0.45, ease: "power2.in" }, 0.55)
-        .to(helmetRoot.current!.position, { y: -0.6, duration: 0.45, ease: "power2.in" }, 0.55);
+      STORY_STAGES.forEach((stage, i) => {
+        if (i === 0) return; // stage đầu là trạng thái khởi điểm, không cần tween
+        const startTime = (i - 1) * segDuration;
+
+        tl.to(
+          helmetRoot.current!.rotation,
+          { y: stage.rotationY, duration: segDuration, ease: "power1.inOut" },
+          startTime
+        )
+          .to(
+            helmetRoot.current!.position,
+            { x: stage.positionX, duration: segDuration, ease: "power1.inOut" },
+            startTime
+          )
+          .to(
+            helmetRoot.current!.scale,
+            { x: stage.scale, y: stage.scale, z: stage.scale, duration: segDuration, ease: "power1.inOut" },
+            startTime
+          );
+      });
     });
+
     return () => ctx.revert();
   }, []);
 
+  // Idle spin nhẹ + nghiêng theo chuột — chỉ ở Story mode
   useFrame(({ mouse }, delta) => {
-    if (mode !== "story") return; // idle spin + mouse tilt chỉ chạy ở Story mode
-    if (idleRotation.current) idleRotation.current.rotation.y += delta * 0.2;
+    if (mode !== "story") return;
+    if (idleRotation.current) idleRotation.current.rotation.y += delta * 0.08; // chậm hơn vì đã có xoay theo scroll
     if (helmetModel.current) {
-      helmetModel.current.rotation.y = THREE.MathUtils.lerp(helmetModel.current.rotation.y, mouse.x * 0.3, 0.08);
-      helmetModel.current.rotation.x = THREE.MathUtils.lerp(helmetModel.current.rotation.x, -mouse.y * 0.2, 0.08);
+      helmetModel.current.rotation.y = THREE.MathUtils.lerp(helmetModel.current.rotation.y, mouse.x * 0.15, 0.06);
+      helmetModel.current.rotation.x = THREE.MathUtils.lerp(helmetModel.current.rotation.x, -mouse.y * 0.1, 0.06);
     }
   });
 
-  const handleClick = (e: ThreeEvent<MouseEvent>) => {
-    if (mode !== "xray") return;
-    e.stopPropagation();
-
-    const meshName = e.object.name;
-    const part = findPartByMeshName(meshName);
-    setActivePart(part ? part.id : null);
-  };
-
   return (
-    <group ref={helmetRoot} scale={0.85}>
+    <group ref={helmetRoot} scale={STORY_STAGES[0].scale} position={[STORY_STAGES[0].positionX, 0, 0]}>
       <group ref={entranceGroup}>
         <group ref={idleRotation}>
-          <group ref={helmetModel} onClick={handleClick}>
+          <group ref={helmetModel}>
             <primitive object={scene} />
           </group>
         </group>

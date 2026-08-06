@@ -1,17 +1,18 @@
 import Scene from "../scenes/HomeScene/Scene";
-import Hero from "../components/Hero/Hero";
-import Explore from "../components/Explore/Explore";
+import StorySection from "../components/StorySection/StorySection";
 import Navbar from "../components/Navbar/Navbar";
 import SmoothScroll from "../components/SmoothScroll/SmoothScroll";
 import XRayUI from "../components/XRayUI/XRayUI";
 import PartPanel from "../components/PartPanel/PartPanel";
+import { STORY_STAGES } from "../constants/storyData";
 import { useSceneStore } from "../store/sceneStore";
 
 export default function Home() {
   const mode = useSceneStore((s) => s.mode);
+  const setMode = useSceneStore((s) => s.setMode);
 
   return (
-    <main className="scroll-container relative w-screen h-[200vh] overflow-hidden">
+    <main className="scroll-container relative w-screen overflow-hidden" style={{ height: `${STORY_STAGES.length * 100}vh` }}>
       <SmoothScroll />
       <Navbar />
 
@@ -23,10 +24,14 @@ export default function Home() {
       <PartPanel />
 
       <div className={`transition-opacity duration-500 ${mode === "story" ? "opacity-100" : "opacity-0 pointer-events-none"}`}>
-        <section className="h-screen relative">
-          <Hero />
-        </section>
-        <Explore />
+        {STORY_STAGES.map((stage, i) => (
+          <StorySection
+            key={stage.id}
+            stage={stage}
+            isFirst={i === 0}
+            cta={i === STORY_STAGES.length - 1 ? { label: "Enter the X-Ray →", onClick: () => setMode("xray") } : undefined}
+          />
+        ))}
       </div>
     </main>
   );
