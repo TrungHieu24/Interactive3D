@@ -1,52 +1,87 @@
+export const STAGE_HEIGHT_VH = 150;
+
 export interface StoryStage {
   id: string;
   tag: string;
   title: string;
   description: string;
-  rotationY: number; // góc xoay TUYỆT ĐỐI đạt được ở cuối stage này (radian)
+  rotationY: number;
   positionX: number;
   scale: number;
+  cameraZ: number;
 }
+
+const deg = (d: number) => (d * Math.PI) / 180;
 
 export const STORY_STAGES: StoryStage[] = [
   {
     id: "overview",
     tag: "01 — OVERVIEW",
     title: "Every detail, engineered.",
-    description:
-      "A closer look at the full helmet — structure, airflow, and fit working together as one system.",
-    rotationY: 0,
+    description: "A closer look at the full helmet — structure, airflow, and fit working together as one system.",
+    rotationY: deg(0),
     positionX: 0,
     scale: 0.85,
+    cameraZ: 4,
   },
   {
     id: "shell",
     tag: "02 — SHELL",
     title: "Built for impact.",
-    description:
-      "A composite outer shell spreads impact energy across the surface, keeping the load off any single point.",
-    rotationY: Math.PI * 0.55,
-    positionX: 1.0,
-    scale: 0.62,
+    description: "A composite outer shell spreads impact energy across the surface, keeping the load off any single point.",
+    rotationY: deg(8), // rất nhẹ
+    positionX: 0.2,
+    scale: 0.65,
+    cameraZ: 2.4,
+  },
+  {
+    id: "visor",
+    tag: "03 — VISOR",
+    title: "See it all, clearly.",
+    description: "An anti-fog, UV-coated visor keeps vision sharp in any condition, from bright sun to heavy rain.",
+    rotationY: deg(16),
+    positionX: -0.2,
+    scale: 0.68,
+    cameraZ: 2.1,
   },
   {
     id: "airflow",
-    tag: "03 — AIRFLOW",
+    tag: "04 — AIRFLOW",
     title: "Cool, every ride.",
-    description:
-      "Channeled vents pull air through the interior padding, keeping you comfortable over long rides.",
-    rotationY: Math.PI * 1.1,
-    positionX: -1.0,
-    scale: 0.62,
+    description: "Channeled vents pull air through the interior padding, keeping you comfortable over long rides.",
+    rotationY: deg(22), // đỉnh cung — lệch nhiều nhất, vẫn rất nhẹ
+    positionX: 0.2,
+    scale: 0.65,
+    cameraZ: 2.5,
+  },
+  {
+    id: "padding",
+    tag: "05 — PADDING",
+    title: "Soft where it counts.",
+    description: "Multi-density foam padding cushions impact while staying breathable against the skin.",
+    rotationY: deg(14), // bắt đầu giảm dần trở lại
+    positionX: -0.2,
+    scale: 0.65,
+    cameraZ: 2.5,
+  },
+  {
+    id: "fit",
+    tag: "06 — FIT",
+    title: "Made to fit you.",
+    description: "Adjustable straps and a contoured shell give a secure, personalized fit for every head shape.",
+    rotationY: deg(6),
+    positionX: 0.1,
+    scale: 0.75,
+    cameraZ: 3,
   },
   {
     id: "explore",
-    tag: "04 — EXPLORE",
+    tag: "07 — EXPLORE",
     title: "Take it apart yourself.",
-    description:
-      "Step inside the interactive X-Ray. Tap any layer to see how every piece fits together.",
-    rotationY: Math.PI * 1.6,
+    description: "Step inside the interactive X-Ray. Tap any layer to see how every piece fits together.",
+    rotationY: deg(0), // về đúng góc ban đầu
     positionX: 0,
     scale: 0.85,
+    cameraZ: 4,
   },
 ];

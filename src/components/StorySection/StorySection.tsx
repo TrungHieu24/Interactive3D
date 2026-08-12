@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import type { StoryStage } from "../../constants/storyData";
+import { STAGE_HEIGHT_VH } from "../../constants/storyData";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -20,37 +21,40 @@ export default function StorySection({ stage, isFirst, cta }: Props) {
 
     const ctx = gsap.context(() => {
       if (isFirst) {
-        // Entrance khi mount — chỉ chạy 1 lần cho section đầu
         gsap.from(wrapperRef.current!.children, {
-          y: 40,
+          y: 50,
           opacity: 0,
-          duration: 0.9,
+          filter: "blur(10px)",
+          duration: 1,
           stagger: 0.15,
           ease: "power3.out",
           delay: 0.3,
         });
       } else {
-        gsap.set(wrapperRef.current, { opacity: 0, y: 40 });
+        gsap.set(wrapperRef.current, { opacity: 0, y: 50, filter: "blur(10px)" });
       }
 
-      // Fade in khi section tiến vào giữa màn hình, fade out khi rời đi
+      // Reveal — chữ "hiện nét" dần từ mờ nhoè sang sắc nét, khớp scroll
       gsap.to(wrapperRef.current, {
         opacity: 1,
         y: 0,
+        filter: "blur(0px)",
         scrollTrigger: {
           trigger: sectionRef.current,
-          start: "top 65%",
-          end: "top 35%",
+          start: "top 85%",
+          end: "top 40%",
           scrub: 1,
         },
       });
 
+      // Ẩn dần — chữ mờ nhoè trở lại khi rời khỏi màn hình
       gsap.to(wrapperRef.current, {
         opacity: 0,
-        y: -30,
+        y: -40,
+        filter: "blur(10px)",
         scrollTrigger: {
           trigger: sectionRef.current,
-          start: "bottom 45%",
+          start: "bottom 60%",
           end: "bottom 15%",
           scrub: 1,
         },
@@ -61,36 +65,38 @@ export default function StorySection({ stage, isFirst, cta }: Props) {
   }, [isFirst]);
 
   return (
-    <section ref={sectionRef} className="h-screen flex flex-col justify-center px-8 md:px-20 relative">
-      <div ref={wrapperRef} className="max-w-xl">
-        <p className="mb-4 text-xs md:text-sm tracking-[0.3em] text-cyan-300/80 pointer-events-none">
-          {stage.tag}
-        </p>
+    <section ref={sectionRef} style={{ height: `${STAGE_HEIGHT_VH}vh` }} className="relative">
+      <div className="sticky top-0 h-screen flex flex-col justify-center px-8 md:px-20">
+        <div ref={wrapperRef} className="max-w-xl">
+          <p className="mb-4 text-xs md:text-sm tracking-[0.3em] text-cyan-300/80 pointer-events-none">
+            {stage.tag}
+          </p>
 
-        <h2 className="text-white text-4xl md:text-6xl font-bold tracking-tight pointer-events-none">
-          {stage.title}
-        </h2>
+          <h2 className="text-white text-4xl md:text-6xl font-bold tracking-tight pointer-events-none">
+            {stage.title}
+          </h2>
 
-        <p className="mt-6 text-base md:text-lg text-gray-400 leading-relaxed pointer-events-none">
-          {stage.description}
-        </p>
+          <p className="mt-6 text-base md:text-lg text-gray-400 leading-relaxed pointer-events-none">
+            {stage.description}
+          </p>
 
-        {isFirst && (
-          <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/50 text-[10px] tracking-[0.3em] pointer-events-none">
-            SCROLL
-            <span className="animate-bounce">↓</span>
-          </div>
-        )}
+          {isFirst && (
+            <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/50 text-[10px] tracking-[0.3em] pointer-events-none">
+              SCROLL
+              <span className="animate-bounce">↓</span>
+            </div>
+          )}
 
-        {cta && (
-          <button
-            data-cursor-hover
-            onClick={cta.onClick}
-            className="pointer-events-auto mt-10 rounded-full border border-cyan-300/30 bg-cyan-300/10 px-8 py-4 text-sm tracking-[0.15em] text-white backdrop-blur-xl transition hover:bg-cyan-300/20"
-          >
-            {cta.label}
-          </button>
-        )}
+          {cta && (
+            <button
+              data-cursor-hover
+              onClick={cta.onClick}
+              className="pointer-events-auto mt-10 rounded-full border border-cyan-300/30 bg-cyan-300/10 px-8 py-4 text-sm tracking-[0.15em] text-white backdrop-blur-xl transition hover:bg-cyan-300/20"
+            >
+              {cta.label}
+            </button>
+          )}
+        </div>
       </div>
     </section>
   );

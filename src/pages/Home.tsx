@@ -4,7 +4,8 @@ import Navbar from "../components/Navbar/Navbar";
 import SmoothScroll from "../components/SmoothScroll/SmoothScroll";
 import XRayUI from "../components/XRayUI/XRayUI";
 import PartPanel from "../components/PartPanel/PartPanel";
-import { STORY_STAGES } from "../constants/storyData";
+import ScrollDots from "../components/ScrollDots/ScrollDots";
+import { STORY_STAGES, STAGE_HEIGHT_VH } from "../constants/storyData";
 import { useSceneStore } from "../store/sceneStore";
 
 export default function Home() {
@@ -12,7 +13,10 @@ export default function Home() {
   const setMode = useSceneStore((s) => s.setMode);
 
   return (
-    <main className="scroll-container relative w-screen overflow-hidden" style={{ height: `${STORY_STAGES.length * 100}vh` }}>
+    <main
+      className="scroll-container relative w-screen overflow-hidden"
+      style={{ height: `${STORY_STAGES.length * STAGE_HEIGHT_VH}vh` }}
+    >
       <SmoothScroll />
       <Navbar />
 
@@ -22,6 +26,7 @@ export default function Home() {
 
       <XRayUI />
       <PartPanel />
+      <ScrollDots />
 
       <div className={`transition-opacity duration-500 ${mode === "story" ? "opacity-100" : "opacity-0 pointer-events-none"}`}>
         {STORY_STAGES.map((stage, i) => (
