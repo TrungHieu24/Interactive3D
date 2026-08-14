@@ -22,41 +22,38 @@ export default function StorySection({ stage, isFirst, cta }: Props) {
     const ctx = gsap.context(() => {
       if (isFirst) {
         gsap.from(wrapperRef.current!.children, {
-          y: 50,
+          y: 40,
           opacity: 0,
-          filter: "blur(10px)",
-          duration: 1,
+          duration: 0.9,
           stagger: 0.15,
           ease: "power3.out",
           delay: 0.3,
         });
       } else {
-        gsap.set(wrapperRef.current, { opacity: 0, y: 50, filter: "blur(10px)" });
+        gsap.set(wrapperRef.current, { opacity: 0, y: 40 });
       }
 
-      // Reveal — chữ "hiện nét" dần từ mờ nhoè sang sắc nét, khớp scroll
+      // Fade-in: hoàn tất HẲN ở mốc 55% — không còn blur, chỉ trượt + mờ dần
       gsap.to(wrapperRef.current, {
         opacity: 1,
         y: 0,
-        filter: "blur(0px)",
         scrollTrigger: {
           trigger: sectionRef.current,
-          start: "top 85%",
-          end: "top 40%",
-          scrub: 1,
+          start: "top 100%",
+          end: "top 55%",
+          scrub: 0.6,
         },
       });
 
-      // Ẩn dần — chữ mờ nhoè trở lại khi rời khỏi màn hình
+      // Fade-out: CHỈ bắt đầu đúng lúc fade-in đã xong hẳn (cùng mốc 55%) — không còn khoảng chồng lấn
       gsap.to(wrapperRef.current, {
         opacity: 0,
-        y: -40,
-        filter: "blur(10px)",
+        y: -30,
         scrollTrigger: {
           trigger: sectionRef.current,
-          start: "bottom 60%",
-          end: "bottom 15%",
-          scrub: 1,
+          start: "bottom 55%",
+          end: "bottom 10%",
+          scrub: 0.6,
         },
       });
     });
