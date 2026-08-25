@@ -33,7 +33,6 @@ export default function StorySection({ stage, isFirst, cta }: Props) {
         gsap.set(wrapperRef.current, { opacity: 0, y: 40 });
       }
 
-      // Fade-in: hoàn tất HẲN ở mốc 55% — không còn blur, chỉ trượt + mờ dần
       gsap.to(wrapperRef.current, {
         opacity: 1,
         y: 0,
@@ -45,7 +44,6 @@ export default function StorySection({ stage, isFirst, cta }: Props) {
         },
       });
 
-      // Fade-out: CHỈ bắt đầu đúng lúc fade-in đã xong hẳn (cùng mốc 55%) — không còn khoảng chồng lấn
       gsap.to(wrapperRef.current, {
         opacity: 0,
         y: -30,

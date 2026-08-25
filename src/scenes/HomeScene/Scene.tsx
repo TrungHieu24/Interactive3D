@@ -1,6 +1,7 @@
 import { Canvas } from "@react-three/fiber";
 import { EffectComposer, Bloom } from "@react-three/postprocessing";
 import Experience from "./Experience";
+import { BLOOM_CONFIG } from "../../constants/postProcessing";
 
 export default function Scene() {
   return (
@@ -8,7 +9,7 @@ export default function Scene() {
       <color attach="background" args={["#05070D"]} />
       <Experience />
       <EffectComposer>
-        <Bloom intensity={0.8} luminanceThreshold={0.4} luminanceSmoothing={0.9} />
+        <Bloom {...BLOOM_CONFIG} />
       </EffectComposer>
     </Canvas>
   );

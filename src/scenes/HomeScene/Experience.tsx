@@ -1,4 +1,4 @@
-import Helmet from "../../components/Helmet/Helmet";
+import Helmet from "../../components/Engine/Engine";
 import CameraRig from "./CameraRig";
 import { Environment, ContactShadows, Float, OrbitControls } from "@react-three/drei";
 import { useSceneStore } from "../../store/sceneStore";
