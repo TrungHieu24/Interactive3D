@@ -24,12 +24,18 @@ export default function PartPanel() {
       ref={panelRef}
       className="fixed top-24 right-8 z-40 w-[340px] rounded-2xl border border-white/10 bg-white/5 backdrop-blur-2xl p-6 text-white"
     >
-      <div className="flex items-center justify-between mb-3">
-        <span className="text-[10px] tracking-[0.25em] text-cyan-300/80">{part.category}</span>
-        <span className="text-[10px] text-white/40">pathtech</span>
-      </div>
+      <button
+        data-cursor-hover
+        onClick={() => setActivePart(null)}
+        className="absolute top-4 right-4 w-6 h-6 flex items-center justify-center rounded-full text-white/50 hover:text-white hover:bg-white/10 transition"
+        aria-label="Đóng"
+      >
+        ×
+      </button>
 
-      <h3 className="text-lg font-semibold leading-snug mb-4">{part.title}</h3>
+      <span className="text-[10px] tracking-[0.25em] text-cyan-300/80">{part.category}</span>
+
+      <h3 className="text-lg font-semibold leading-snug mt-3 mb-4 pr-6">{part.title}</h3>
 
       <div className="flex flex-wrap gap-2 mb-4">
         {part.tags.map((tag) => (
@@ -45,7 +51,7 @@ export default function PartPanel() {
       <div className="flex flex-wrap gap-2 mb-6">
         {part.connectedSystems.map((sys) => (
           <span key={sys} className="text-[11px] px-3 py-1 rounded-full bg-cyan-300/10 text-cyan-200">
-            {sys}
+            • {sys}
           </span>
         ))}
       </div>

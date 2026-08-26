@@ -12,16 +12,18 @@ interface SceneState {
   setCameraPreset: (preset: CameraPreset) => void;
 
   activePart: string | null;
-  setActivePart: (part: string | null) => void;
+  activePartPoint: THREE.Vector3 | null;
+  setActivePart: (part: string | null, point?: THREE.Vector3 | null) => void;
 }
 
 export const useSceneStore = create<SceneState>((set) => ({
   mode: "story",
-  setMode: (mode) => set({ mode, activePart: null }),
+  setMode: (mode) => set({ mode, activePart: null, activePartPoint: null }),
 
   cameraPreset: "frontLeft",
   setCameraPreset: (preset) => set({ cameraPreset: preset }),
 
   activePart: null,
-  setActivePart: (part) => set({ activePart: part }),
+  activePartPoint: null,
+  setActivePart: (part, point = null) => set({ activePart: part, activePartPoint: point }),
 }));

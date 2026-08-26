@@ -1,10 +1,10 @@
 export const CATEGORY_COLORS: Record<string, string> = {
-  STRUCTURE: "#5fa8ff",        
-  "BOTTOM END": "#ff9d4d",   
-  VALVETRAIN: "#4dd2ff",      
-  "FORCED INDUCTION": "#ff5d5d", 
-  COOLING: "#4dffb8",         
-  AIRFLOW: "#7c9cff",        
+  STRUCTURE: "#6fa3d4",
+  "BOTTOM END": "#e0a06b",
+  VALVETRAIN: "#6fc4d9",
+  "FORCED INDUCTION": "#d97a7a",  
+  COOLING: "#7dcfa8",              
+  AIRFLOW: "#8b9fd4",
 };
 
-export const DEFAULT_GLASS_COLOR = "#3d6d99"; 
+export const DEFAULT_GLASS_COLOR = "#3d6d99";

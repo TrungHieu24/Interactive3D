@@ -28,7 +28,7 @@ export function applyGlassMaterial(
 ): THREE.Object3D {
   const {
     baseOpacity = 0.14,
-    highlightOpacity = 0.32,
+    highlightOpacity = 0.26,
     emissiveIntensity = 0.2,
   } = options;
 
