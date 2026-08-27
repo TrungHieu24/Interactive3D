@@ -8,20 +8,6 @@ export interface GlassMaterialOptions {
   emissiveIntensity?: number;
 }
 
-function resolveObjectName(mesh: THREE.Object3D): string {
-  let node: THREE.Object3D | null = mesh;
-  let depth = 0;
-
-  while (node && depth < 3) {
-    const looksGeneric = /^(mesh|object|node)[_\d]*$/i.test(node.name ?? "");
-    if (node.name && !looksGeneric) return node.name;
-    node = node.parent;
-    depth++;
-  }
-
-  return mesh.name;
-}
-
 export function applyGlassMaterial(
   scene: THREE.Object3D,
   options: GlassMaterialOptions = {}
@@ -38,32 +24,28 @@ export function applyGlassMaterial(
   cloned.traverse((child) => {
     if (!(child instanceof THREE.Mesh)) return;
 
-    const resolvedName = resolveObjectName(child);
-    const part = findPartByMeshName(resolvedName);
+    const part = findPartByMeshName(child.name);
     const isHighlighted = !!part;
     if (isHighlighted) matchedCount++;
 
     const colorHex = part ? CATEGORY_COLORS[part.category] ?? DEFAULT_GLASS_COLOR : DEFAULT_GLASS_COLOR;
     const color = new THREE.Color(colorHex);
 
-    child.material = new THREE.MeshPhysicalMaterial({
+    // Đổi từ MeshPhysicalMaterial (transmission/clearcoat rất nặng)
+    // sang MeshStandardMaterial (nhẹ hơn nhiều lần, vẫn đủ trong suốt + phát sáng)
+    child.material = new THREE.MeshStandardMaterial({
       color,
       transparent: true,
       opacity: isHighlighted ? highlightOpacity : baseOpacity,
-      transmission: isHighlighted ? 0.35 : 0.55,
-      thickness: 0.3,
-      roughness: isHighlighted ? 0.1 : 0.25,
+      roughness: 0.3,
       metalness: 0,
-      clearcoat: isHighlighted ? 0.15 : 0,        
-      clearcoatRoughness: 0.2,
       emissive: color,
-      emissiveIntensity: isHighlighted ? emissiveIntensity * 4 : emissiveIntensity * 0.5,
+      emissiveIntensity: isHighlighted ? emissiveIntensity * 1.1 : emissiveIntensity * 0.5,
       depthWrite: false,
       side: THREE.DoubleSide,
     });
   });
 
   console.log(`[glassMaterial] Đã tô màu ${matchedCount} mesh khớp với partsData.ts`);
-
   return cloned;
 }

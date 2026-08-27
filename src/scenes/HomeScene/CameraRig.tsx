@@ -2,8 +2,10 @@ import { useThree } from "@react-three/fiber";
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import * as THREE from "three";
 import { useSceneStore } from "../../store/sceneStore";
 import { STORY_STAGES } from "../../constants/storyData";
+import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -24,12 +26,35 @@ const XRAY_PRESETS: Record<string, [number, number, number]> = {
 
 export default function CameraRig() {
   const { camera } = useThree();
+  const controls = useThree((state) => state.controls) as unknown as OrbitControlsImpl | undefined;
+
   const mode = useSceneStore((s) => s.mode);
   const cameraPreset = useSceneStore((s) => s.cameraPreset);
   const activePart = useSceneStore((s) => s.activePart);
   const activePartPoint = useSceneStore((s) => s.activePartPoint);
   const prevMode = useRef(mode);
   const scrollTriggerRef = useRef<ScrollTrigger | null>(null);
+
+  const syncLookAt = (target: THREE.Vector3 | [number, number, number]) => {
+    const t = Array.isArray(target) ? new THREE.Vector3(...target) : target;
+    camera.lookAt(t);
+    if (controls) controls.target.copy(t);
+  };
+
+  const animateCamera = (vars: gsap.TweenVars, lookAtTarget: THREE.Vector3 | [number, number, number]) => {
+    if (controls) controls.enabled = false;
+    gsap.to(camera.position, {
+      ...vars,
+      onUpdate: () => syncLookAt(lookAtTarget),
+      onComplete: () => {
+        if (controls) {
+          controls.enabled = true; 
+          controls.update();
+        }
+        vars.onComplete?.();
+      },
+    });
+  };
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -63,17 +88,17 @@ export default function CameraRig() {
     if (mode === "xray" && prevMode.current !== "xray") {
       st?.disable(false);
       const [x, y, z] = XRAY_PRESETS[cameraPreset];
-      gsap.to(camera.position, { x, y, z, duration: 1.2, ease: "power3.inOut", onUpdate: () => camera.lookAt(0, 0, 0) });
+      animateCamera({ x, y, z, duration: 1.2, ease: "power3.inOut" }, [0, 0, 0]);
     }
 
     if (mode === "story" && prevMode.current === "xray") {
-      gsap.to(camera.position, {
-        x: 0, y: 0,
-        duration: 1,
-        ease: "power3.inOut",
-        onUpdate: () => camera.lookAt(0, 0, 0),
-        onComplete: () => { st?.enable(); st?.refresh(); },
-      });
+      animateCamera(
+        {
+          x: 0, y: 0, duration: 1, ease: "power3.inOut",
+          onComplete: () => { st?.enable(); st?.refresh(); },
+        },
+        [0, 0, 0]
+      );
     }
 
     prevMode.current = mode;
@@ -82,35 +107,27 @@ export default function CameraRig() {
   useEffect(() => {
     if (mode !== "xray") return;
     const [x, y, z] = XRAY_PRESETS[cameraPreset];
-    gsap.to(camera.position, { x, y, z, duration: 1, ease: "power2.inOut", onUpdate: () => camera.lookAt(0, 0, 0) });
+    animateCamera({ x, y, z, duration: 1, ease: "power2.inOut" }, [0, 0, 0]);
   }, [cameraPreset, mode, camera]);
 
-  // Click vào 1 bộ phận → camera bay tới GẦN ĐÚNG điểm click (activePartPoint), không phải giữa xe
-useEffect(() => {
-  if (mode !== "xray") return;
+  useEffect(() => {
+    if (mode !== "xray") return;
 
-  if (activePart && activePartPoint) {
-    const currentDistance = camera.position.distanceTo(activePartPoint);
-    // Luôn tiến gần bằng 30% khoảng cách HIỆN TẠI — tự thích nghi mọi tỉ lệ model,
-    // không phụ thuộc đơn vị mét thật trong file .glb
-    const zoomDistance = Math.max(currentDistance * 0.3, 0.6);
+    if (activePart && activePartPoint) {
+      const currentDistance = camera.position.distanceTo(activePartPoint);
+      const zoomDistance = Math.max(currentDistance * 0.5, 0.9);
+      const dir = camera.position.clone().sub(activePartPoint).normalize().multiplyScalar(zoomDistance);
+      const targetPos = activePartPoint.clone().add(dir);
 
-    const dir = camera.position.clone().sub(activePartPoint).normalize().multiplyScalar(zoomDistance);
-    const targetPos = activePartPoint.clone().add(dir);
-
-    gsap.to(camera.position, {
-      x: targetPos.x,
-      y: targetPos.y,
-      z: targetPos.z,
-      duration: 0.9,
-      ease: "power2.inOut",
-      onUpdate: () => camera.lookAt(activePartPoint),
-    });
-  } else {
-    const [x, y, z] = XRAY_PRESETS[cameraPreset];
-    gsap.to(camera.position, { x, y, z, duration: 0.9, ease: "power2.inOut", onUpdate: () => camera.lookAt(0, 0, 0) });
-  }
-}, [activePart, activePartPoint]);
+      animateCamera(
+        { x: targetPos.x, y: targetPos.y, z: targetPos.z, duration: 1.1, ease: "power2.out" },
+        activePartPoint
+      );
+    } else {
+      const [x, y, z] = XRAY_PRESETS[cameraPreset];
+      animateCamera({ x, y, z, duration: 0.9, ease: "power2.inOut" }, [0, 0, 0]);
+    }
+  }, [activePart, activePartPoint]);
 
   return null;
 }

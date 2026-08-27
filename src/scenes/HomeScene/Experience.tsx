@@ -1,4 +1,4 @@
-import Helmet from "../../components/Engine/Engine";
+import Engine from "../../components/Engine/Engine";
 import CameraRig from "./CameraRig";
 import { Environment, ContactShadows, Float, OrbitControls } from "@react-three/drei";
 import { useSceneStore } from "../../store/sceneStore";
@@ -14,17 +14,18 @@ export default function Experience() {
       <Environment files="/hdri/studio.hdr" background={false} />
 
       <Float speed={mode === "story" ? 2 : 0} floatIntensity={mode === "story" ? 0.6 : 0} rotationIntensity={0}>
-        <Helmet />
+        <Engine />
       </Float>
 
       <ContactShadows position={[0, -1.2, 0]} opacity={0.6} scale={10} blur={2} />
 
       {mode === "xray" && (
         <OrbitControls
+          makeDefault
           enablePan={false}
           enableDamping
           dampingFactor={0.08}
-          minDistance={1.2}
+          minDistance={0.5}
           maxDistance={4}
         />
       )}
