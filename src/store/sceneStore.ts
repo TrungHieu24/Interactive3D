@@ -30,6 +30,6 @@ export const useSceneStore = create<SceneState>((set) => ({
   activePartPoint: null,
   setActivePart: (part, point = null) => set({ activePart: part, activePartPoint: point }),
 
-  xrayLookTarget: new THREE.Vector3(0, 0, 0), // sẽ được Engine.tsx tính lại chính xác khi model load xong
+  xrayLookTarget: new THREE.Vector3(0, 0, 0),
   setXrayLookTarget: (v) => set({ xrayLookTarget: v }),
 }));
