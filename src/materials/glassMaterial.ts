@@ -31,8 +31,6 @@ export function applyGlassMaterial(
     const colorHex = part ? CATEGORY_COLORS[part.category] ?? DEFAULT_GLASS_COLOR : DEFAULT_GLASS_COLOR;
     const color = new THREE.Color(colorHex);
 
-    // Đổi từ MeshPhysicalMaterial (transmission/clearcoat rất nặng)
-    // sang MeshStandardMaterial (nhẹ hơn nhiều lần, vẫn đủ trong suốt + phát sáng)
     child.material = new THREE.MeshStandardMaterial({
       color,
       transparent: true,

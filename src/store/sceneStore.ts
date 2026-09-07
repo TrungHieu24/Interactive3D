@@ -14,6 +14,9 @@ interface SceneState {
   activePart: string | null;
   activePartPoint: THREE.Vector3 | null;
   setActivePart: (part: string | null, point?: THREE.Vector3 | null) => void;
+
+  xrayLookTarget: THREE.Vector3;
+  setXrayLookTarget: (v: THREE.Vector3) => void;
 }
 
 export const useSceneStore = create<SceneState>((set) => ({
@@ -26,4 +29,7 @@ export const useSceneStore = create<SceneState>((set) => ({
   activePart: null,
   activePartPoint: null,
   setActivePart: (part, point = null) => set({ activePart: part, activePartPoint: point }),
+
+  xrayLookTarget: new THREE.Vector3(0, 0, 0), // sẽ được Engine.tsx tính lại chính xác khi model load xong
+  setXrayLookTarget: (v) => set({ xrayLookTarget: v }),
 }));

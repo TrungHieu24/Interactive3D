@@ -32,6 +32,7 @@ export default function CameraRig() {
   const cameraPreset = useSceneStore((s) => s.cameraPreset);
   const activePart = useSceneStore((s) => s.activePart);
   const activePartPoint = useSceneStore((s) => s.activePartPoint);
+  const xrayLookTarget = useSceneStore((s) => s.xrayLookTarget); // ← tâm thật, đo từ Engine.tsx
   const prevMode = useRef(mode);
   const scrollTriggerRef = useRef<ScrollTrigger | null>(null);
 
@@ -48,7 +49,7 @@ export default function CameraRig() {
       onUpdate: () => syncLookAt(lookAtTarget),
       onComplete: () => {
         if (controls) {
-          controls.enabled = true; 
+          controls.enabled = true;
           controls.update();
         }
         vars.onComplete?.();
@@ -88,27 +89,31 @@ export default function CameraRig() {
     if (mode === "xray" && prevMode.current !== "xray") {
       st?.disable(false);
       const [x, y, z] = XRAY_PRESETS[cameraPreset];
-      animateCamera({ x, y, z, duration: 1.2, ease: "power3.inOut" }, [0, 0, 0]);
+      // Cộng offset theo đúng preset (bán kính xoay quanh) nhưng nhắm vào TÂM THẬT
+      animateCamera(
+        { x: x + xrayLookTarget.x, y: y + xrayLookTarget.y, z: z + xrayLookTarget.z, duration: 1.2, ease: "power3.inOut" },
+        xrayLookTarget
+      );
     }
 
     if (mode === "story" && prevMode.current === "xray") {
       animateCamera(
-        {
-          x: 0, y: 0, duration: 1, ease: "power3.inOut",
-          onComplete: () => { st?.enable(); st?.refresh(); },
-        },
+        { x: 0, y: 0, duration: 1, ease: "power3.inOut", onComplete: () => { st?.enable(); st?.refresh(); } },
         [0, 0, 0]
       );
     }
 
     prevMode.current = mode;
-  }, [mode, camera, cameraPreset]);
+  }, [mode, camera, cameraPreset, xrayLookTarget]);
 
   useEffect(() => {
     if (mode !== "xray") return;
     const [x, y, z] = XRAY_PRESETS[cameraPreset];
-    animateCamera({ x, y, z, duration: 1, ease: "power2.inOut" }, [0, 0, 0]);
-  }, [cameraPreset, mode, camera]);
+    animateCamera(
+      { x: x + xrayLookTarget.x, y: y + xrayLookTarget.y, z: z + xrayLookTarget.z, duration: 1, ease: "power2.inOut" },
+      xrayLookTarget
+    );
+  }, [cameraPreset, mode, camera, xrayLookTarget]);
 
   useEffect(() => {
     if (mode !== "xray") return;
@@ -125,9 +130,12 @@ export default function CameraRig() {
       );
     } else {
       const [x, y, z] = XRAY_PRESETS[cameraPreset];
-      animateCamera({ x, y, z, duration: 0.9, ease: "power2.inOut" }, [0, 0, 0]);
+      animateCamera(
+        { x: x + xrayLookTarget.x, y: y + xrayLookTarget.y, z: z + xrayLookTarget.z, duration: 0.9, ease: "power2.inOut" },
+        xrayLookTarget
+      );
     }
-  }, [activePart, activePartPoint]);
+  }, [activePart, activePartPoint, xrayLookTarget]);
 
   return null;
 }

@@ -14,6 +14,9 @@ gsap.registerPlugin(ScrollTrigger);
 export default function Engine() {
   const { scene } = useGLTF("/models/V6Engine-2.glb");
 
+  const setXrayLookTarget = useSceneStore((s) => s.setXrayLookTarget);
+  const XRAY_ENTER_SCALE = 2;
+
   const engineRoot = useRef<THREE.Group>(null);
   const entranceGroup = useRef<THREE.Group>(null);
   const engineModel = useRef<THREE.Group>(null);
@@ -33,6 +36,15 @@ export default function Engine() {
     });
     return () => ctx.revert();
   }, []);
+
+  useEffect(() => {
+  const box = new THREE.Box3().setFromObject(scene);
+  const center = box.getCenter(new THREE.Vector3());
+
+  center.multiplyScalar(XRAY_ENTER_SCALE);
+
+  setXrayLookTarget(center);
+  }, [scene, setXrayLookTarget]);
 
   useEffect(() => {
     if (!engineRoot.current) return;
