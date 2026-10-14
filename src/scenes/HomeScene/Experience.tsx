@@ -10,7 +10,7 @@ export default function Experience() {
     <>
       <CameraRig />
       <ambientLight intensity={0.25} />
-      <directionalLight position={[4, 6, 4]} intensity={1.8} castShadow />
+      <directionalLight position={[4, 6, 4]} intensity={1.8}/>
       <Environment files="/hdri/studio.hdr" background={false} />
 
       <Float speed={mode === "story" ? 2 : 0} floatIntensity={mode === "story" ? 0.6 : 0} rotationIntensity={0}>

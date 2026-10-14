@@ -1,5 +1,6 @@
 export const BLOOM_CONFIG = {
-  intensity: 0.25,
-  luminanceThreshold: 0.7,
-  luminanceSmoothing: 0.85,
+  intensity: 0.2,
+  luminanceThreshold: 0.8,  
+  luminanceSmoothing: 0.9,
+  mipmapBlur: true,         
 };
